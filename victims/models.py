@@ -42,6 +42,9 @@ class Requirements(models.Model):
     created_time = models.DateTimeField(auto_now_add=True, null=True)
     quantity = models.IntegerField(default=0)
 
+    class Meta:
+        db_table = 'Requirements'
+
 
 class SafeLocations(models.Model):
     id = models.AutoField(primary_key=True)

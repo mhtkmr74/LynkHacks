@@ -7,22 +7,43 @@ from django.http import HttpResponse
 
 
 def signup(request):
-    # received_json_data = json.loads(request.body)
-    # name = received_json_data['name']
-    # number = received_json_data['mobile_number']
-    # location = received_json_data['location']
-    # print("Issue possible in location")
-    # victim_obj = Victims()
-    # victim_obj.name = name
-    # victim_obj.number = number
-    # victim_obj.location = location
-    # victim_obj.save()
-    # print("Issue can be here in primary key victim", victim_obj.pk)
-    return HttpResponse(json.dumps({"victim_id": victim_obj.pk}), content_type="application/json")
+    received_json_data = json.loads(request.body)
+    name = received_json_data['name']
+    number = received_json_data['mobile_number']
+    location = received_json_data['location']
+    password = received_json_data['password']
+    print("Issue possible in location")
+    supp_obj = Suppliers()
+    supp_obj.name = name
+    supp_obj.number = number
+    supp_obj.location = location
+    supp_obj.save()
+    print("Issue can be here in primary key victim", supp_obj.id)
+    return HttpResponse(json.dumps({"victim_id": supp_obj.id}), content_type="application/json")
 
 
 def login(request):
-    # number = request.GET['mobile_number']
-    # victim_data_obj = Victims.objects.filter(number=number)
-    # result = victim_data_obj[0]
-    return HttpResponse(status=200)
+    received_json_data = json.loads(request.body)
+    number = received_json_data['mobile_number']
+    password = received_json_data['password']
+    supplier_data_list_active = list(Suppliers.objects.filter(
+        number=number, password=password).values())
+    if len(supplier_data_list_active) > 0:
+        result_active = supplier_data_list_active[0]
+        supplier_details = {
+            "id": result_active['id'],
+            "name": result_active['name'],
+            "location": result_active['location'],
+            "status": result_active['status'],
+            "quantity": result_active['quantity']
+        }
+        return HttpResponse(json.dumps({"supplier_details": supplier_details}), content_type="application/json")
+    return HttpResponse(status=401)
+
+
+def insert_goods(request):
+    received_json_data = json.loads(request.body)
+    path = request.path
+    update_id = path.split('/')[1]
+    goods = received_json_data['goods_type']
+    quantity = received_json_data['quantity']
