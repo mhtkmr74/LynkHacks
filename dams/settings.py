@@ -38,7 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'location_field.apps.DefaultConfig'
+    'location_field.apps.DefaultConfig',
+    'victims',
+    'volunteers',
+    'suppliers',
 ]
 
 MIDDLEWARE = [
@@ -85,7 +88,6 @@ DATABASES = {
     "NAME": "dams",
 	'OPTIONS': {
 		'use_unicode': True,
-		'charset': 'utf-8'
 	}
     }
 }

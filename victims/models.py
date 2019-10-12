@@ -1,5 +1,5 @@
 from django.db import models
-from location_field.models.spatial import LocationField
+from location_field.models.plain import PlainLocationField
 
 # Create your models here.
 class Victims(models.Model):
@@ -7,7 +7,7 @@ class Victims(models.Model):
     number = models.IntegerField()
     area = models.CharField(max_length=255)
     need = models.TextField()
-    location = LocationField(based_fields=['area'], zoom=7, default=Point(1.0, 1.0))
+    location = PlainLocationField(based_fields=['city'], zoom=7)
     
 
     def __str__(self):
