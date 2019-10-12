@@ -23,6 +23,41 @@ def signup(request):
 
 def login(request):
     number = request.GET['mobile_number']
-    victim_data_obj = Victims.objects.filter(number=number)
-    result = victim_data_obj[0]
-    return HttpResponse(status=200)
+    victim_data_list_active = list(Victims.objects.filter(
+        number=number, requirement_status=1).values())
+    if len(victim_data_list_active) > 0:
+        result_active = victim_data_list_active[0]
+        victim_details = {
+            "id": result_active['id'],
+            "name": result_active['name'],
+            "mobile": result_active['number'],
+            "has_requirement": result_active['requirement_status']
+        }
+        return HttpResponse(json.dumps({"victim_details": victim_details}), content_type="application/json")
+    victim_data_list = list(Victims.objects.filter(number=number).values())
+    if len(victim_data_list) > 0:
+        result = victim_data_list[0]
+        victim_details = {
+            "id": result['id'],
+            "name": result['name'],
+            "mobile": result['number'],
+            "has_requirement": result['requirement_status']
+        }
+        return HttpResponse(json.dumps({"victim_details": victim_details}), content_type="application/json")
+    else:
+        return HttpResponse(status=400)
+
+
+# def requirement_status(request):
+#     path = request.path
+#     requirement_id = path.split('/')[-1]
+#     update_request_data = json.loads(request.body)
+#     try:
+#         vic_data_obj = Victims.objects.get(id=requirement_id)
+#     except Exception as e:
+#         print(e)
+#         return HttpResponse(status=400)
+#     vic_data_obj.Need = update_request_data['request_type']
+#     vic_data_obj.Sub_need = update_request_data['value']
+#     vic_data_obj.Comments = update_request_data['status']
+#     vic_data_obj.save()

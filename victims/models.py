@@ -8,9 +8,9 @@ class Victims(models.Model):
     name = models.CharField(max_length=255)
     number = models.IntegerField()
     area = models.CharField(max_length=255)
-    need = models.TextField()
-    location = PlainLocationField(based_fields=['city'], zoom=7)
     requirement_status = models.IntegerField(default=0, null=True)
+    location = PlainLocationField(based_fields=['city'], zoom=7)
+
 
     def __str__(self):
         return self.name
