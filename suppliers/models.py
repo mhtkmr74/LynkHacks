@@ -2,6 +2,8 @@ from django.db import models
 from location_field.models.plain import PlainLocationField
 
 # Create your models here.
+
+
 class Suppliers(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -26,7 +28,6 @@ class Suppliers(models.Model):
 
     def is_upperclass(self):
         return self.volunteer_type in (self.MEDICAL, self.TRANSPORTATION, self.WORKFORCE)
-    
 
     def __str__(self):
         return self.name
@@ -36,3 +37,6 @@ class Suppliers(models.Model):
 
     def summary(self):
         return self.body[:100]
+
+    class Meta:
+        db_table = 'Suppliers'
