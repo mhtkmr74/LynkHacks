@@ -1,5 +1,6 @@
 from django.db import models
 from location_field.models.plain import PlainLocationField
+from victims.models import Needs
 
 # Create your models here.
 
@@ -11,7 +12,7 @@ class Suppliers(models.Model):
     email = models.EmailField(max_length=60)
     password = models.CharField(max_length=64, default=None, null=True)
     area = models.CharField(max_length=255)
-    # donation = models.ForeignKey(Needs)
+    donation = models.ForeignKey(Needs, on_delete=models.CASCADE, db_column='Need_id', default=None, null=True)
     location = PlainLocationField(based_fields=['city'], zoom=7)
     quantity = models.IntegerField(default=0)
 

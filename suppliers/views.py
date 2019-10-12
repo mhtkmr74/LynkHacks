@@ -1,6 +1,7 @@
 from django.shortcuts import render
 import json
 from .models import Suppliers
+from victims.models import Needs
 from django.http import HttpResponse
 
 # Create your views here.
@@ -46,4 +47,24 @@ def insert_goods(request):
     path = request.path
     update_id = path.split('/')[1]
     goods = received_json_data['goods_type']
+    # mappng = {
+    #     "Foods": "Good Foods",
+    #     "Clothes": "Good Clothes",
+    #     "Other_Accessories": "Good Other_Accessories"
+    # }
+    res = Needs.objects.get(sub_type=goods)
     quantity = received_json_data['quantity']
+    try:
+        sup_upd = Suppliers.objects.get(id=update_id)
+    except Exception as e:
+        print(e)
+        return HttpResponse(status=400)
+    sup_upd.quantity = quantity
+    sup_upd.donation = res
+    sup_upd.save()
+    return HttpResponse(status=200)
+
+
+
+
+

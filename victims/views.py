@@ -100,7 +100,19 @@ def safe_place(request):
 
 
 def all_requests(request):
+    mappng = {
+            "1": "Goods Foods",
+            "2": "Goods Clothes",
+            "3": "Goods Other_Accessories",
+            "4": "Emergency ",
+            "5": "Relocation "
+        }
     path = request.path
     victim_id = path.split('/')[1]
+    final_result = list()
     all_active_requirements = list(Requirements.objects.filter(
         victim_id=victim_id, delivery_status=5).values())
+    for result in all_active_requirements:
+        final_result.append({"request_id": result['id'], "need": mappng[result['requirement']].split()[
+                            0], "sub_need":  ''.join(mappng[result['requirement']].split()[1:])})
+    return HttpResponse(json.dumps(final_result), content_type="application/json")

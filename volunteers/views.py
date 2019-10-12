@@ -34,14 +34,14 @@ def login(request):
             "status": result_active['status']
         }
         return HttpResponse(json.dumps({"volunteer_details": volunteer_details}), content_type="application/json")
-    # volunt_data_list = list(Volunteers.objects.filter(number=number).values())
-    # if len(volunt_data_list) > 0:
-    #     result = volunt_data_list[0]
-    #     volunteer_details = {
-    #         "id": result['id'],
-    #         "name": result['name'],
-    #         "location": result['location'],
-    #         "status": result['status']
-    #     }
-    #     return HttpResponse(json.dumps({"volunteer_details": volunteer_details}), content_type="application/json")
     return HttpResponse(status=401)
+
+
+def update_volunteer(request):
+    received_json_data = json.loads(request.body)
+    path = request.path
+    volunteer_id = path.split('/')[1]
+    vol_obj = Volunteers()
+    vol_obj.transportation = received_json_data['has_vehicle']
+    vol_obj.location = received_json_data['location']
+    return HttpResponse(status=200)
