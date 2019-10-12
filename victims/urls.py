@@ -7,6 +7,7 @@ urlpatterns = [
     url('/victim/safe_places', views.get_safe_place),
     url('/victim/request/[0-9]+$', views.requirement_status),
     url('safe_place', views.safe_place),
-    url('victim/[0-9]+$/request/', views.all_requests)
+    url('victim/[0-9]+$/request/', views.all_requests),
+    url('victim/victim_id/request', views.victim_request)
 
 ]

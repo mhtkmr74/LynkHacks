@@ -1,6 +1,8 @@
 from django.shortcuts import render
 import json
 from .models import Victims, Requirements, Needs, SafeLocations
+from volunteers.models import Volunteers
+from suppliers.models import Suppliers
 from django.http import HttpResponse
 from math import sin, cos, sqrt, atan2, radians
 from geopy.geocoders import Nominatim
@@ -100,6 +102,8 @@ def safe_place(request):
 
 
 def all_requests(request):
+    if not request.type == 'GET':
+        victim_request(request)
     mappng = {
             "1": "Goods Foods",
             "2": "Goods Clothes",
@@ -116,3 +120,88 @@ def all_requests(request):
         final_result.append({"request_id": result['id'], "need": mappng[result['requirement']].split()[
                             0], "sub_need":  ''.join(mappng[result['requirement']].split()[1:])})
     return HttpResponse(json.dumps(final_result), content_type="application/json")
+
+
+def victim_request(request):
+    path = request.path
+    victim_id = path.split('/')[1]
+    received_json_data = json.loads(request.body)
+    request_type = received_json_data['request_type']
+    value = received_json_data['value']
+    quantity = received_json_data['quantity']
+    need_obj = Needs.objects.get(type=request_type, sub_type=value)
+    req_obj = Requirements()
+    req_obj.requirement = need_obj
+    req_obj.victim_id = Victims.objects.get(id=victim_id)
+    req_obj.quantity = quantity
+    req_obj.delivery_status = 1
+    req_obj.save()
+    metres = 500
+    volunteer_id = -1
+    present_victim_location = Victims.objects.get(id=victim_id).location
+    present_victim_location_lat = present_victim_location['lat']
+    present_victim_location_lon = present_victim_location['long']
+
+    volunteers_complete_data = list(Volunteers.object.all().values())
+    while volunteer_id < 0 and metres < 10000:
+        coef = metres * 0.0000089
+
+        new_lat_pos = present_victim_location_lat + coef
+        new_long_pos = present_victim_location_lon + \
+            coef / cos(present_victim_location_lon * 0.018)
+
+        new_lat_neg = present_victim_location_lat - coef
+        new_long_neg = present_victim_location_lon - \
+            coef / cos(present_victim_location_lon * 0.018)
+
+        for data in volunteers_complete_data:
+            if data['location']['lat'] > new_lat_neg and data['location']['lat'] < new_lat_pos and data['location']['long'] > new_lat_neg and data['location']['long'] < new_long_pos:
+                volunteer_id = data['id']
+        metres += 500
+
+    req_object = Requirements.objects.get(id=req_obj.id)
+    if volunteer_id < 0:
+        req_object.status = 7
+        req_object.save()
+        return
+    req_object.status = 2
+    req_object.save()
+    supplier_complete_data = list(Needs.objects.filter(
+        type=request_type, sub_type=value).values('suppliers__id', 'suppliers__location'))
+    supplier_id = -1
+    metres = 500
+    present_vol_locatin = Volunteers.objects.get(id=volunteer_id).location'
+    present_vol_locatin_lat = present_vol_locatin['lat']
+    present_vol_locatin_lon = present_vol_locatin['long']
+    while supplier_id < 0 and metres < 10000:
+        coef = metres * 0.0000089
+
+        new_lat_pos = present_vol_locatin_lat + coef
+        new_long_pos = present_vol_locatin_lon + \
+            coef / cos(present_vol_locatin_lon * 0.018)
+
+        new_lat_neg = present_vol_locatin_lat - coef
+        new_long_neg = present_vol_locatin_lon - \
+            coef / cos(present_vol_locatin_lon * 0.018)
+
+        for data in volunteers_complete_data:
+            if data['location']['lat'] > new_lat_neg and data['location']['lat'] < new_lat_pos and data['location']['long'] > new_lat_neg and data['location']['long'] < new_long_pos:
+                supplier_id = data['id']
+        metres += 500
+
+    req_object = Requirements.objects.get(id=req_obj.id)
+    if supplier_id < 0:
+        req_object.status = 7
+        req_object.save()
+        return  # to code
+    req_object.status = 3
+    req_object.save()
+    victim_location = present_victim_location
+    victim_mob = Victims.objects.get(id=victim_id).number
+    supplier_location = Suppliers.objects.get(id=supplier_id).location
+    supplier_mob = Suppliers.objects.get(id=supplier_id).number
+    volunteer_location = present_vol_locatin
+    volunteer_mob = Volunteers.objects.get(id=volunteer_id).number
+    # function call
+    return HttpResponse(json.dumps({"request_id": req_obj.id}))
+

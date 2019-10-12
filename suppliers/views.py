@@ -47,11 +47,6 @@ def insert_goods(request):
     path = request.path
     update_id = path.split('/')[1]
     goods = received_json_data['goods_type']
-    # mappng = {
-    #     "Foods": "Good Foods",
-    #     "Clothes": "Good Clothes",
-    #     "Other_Accessories": "Good Other_Accessories"
-    # }
     res = Needs.objects.get(sub_type=goods)
     quantity = received_json_data['quantity']
     try:
