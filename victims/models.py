@@ -28,7 +28,7 @@ class Victims(models.Model):
 class Needs(models.Model):
     id = models.AutoField(primary_key=True)
     type = models.CharField(max_length=60)
-    sub_type = models.CharField(max_length=60)
+    sub_type = models.CharField(max_length=60, default=True, null=True)
 
     class Meta:
         db_table = 'Needs'

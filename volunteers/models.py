@@ -14,7 +14,7 @@ class Volunteers(models.Model):
     number = models.IntegerField(default=None, null=True)
     email = models.EmailField(max_length=60)
     area = models.CharField(max_length=255)
-    need = models.TextField()
+    need = models.ForeignKey(Needs, on_delete=models.CASCADE, db_column='Need_id')
     location = PlainLocationField(based_fields=['area'], zoom=7)
     type = models.CharField(max_length=255, default=None, null=True)
     password = models.CharField(max_length=64, default=None, null=True)

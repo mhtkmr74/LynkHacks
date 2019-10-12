@@ -4,6 +4,7 @@ from .models import Victims, Requirements, Needs, SafeLocations
 from volunteers.models import Volunteers
 from suppliers.models import Suppliers
 from django.http import HttpResponse
+from volunteers.models import *
 from math import sin, cos, sqrt, atan2, radians
 from geopy.geocoders import Nominatim
 
@@ -31,13 +32,19 @@ def login(request):
     number = received_json_data['mobile_number']
     victim_data_list_active = list(Victims.objects.filter(
         number=number, requirement_status=1).values())
+    va = Volunteer_Supplier_Victim.objects.get(id=1)
     if len(victim_data_list_active) > 0:
         result_active = victim_data_list_active[0]
         victim_details = {
             "id": result_active['id'],
             "name": result_active['name'],
             "mobile": result_active['number'],
-            "has_requirement": result_active['requirement_status']
+            "has_requirement": result_active['requirement_status'],
+            "location": result_active['location'],
+            "requirement_id": va.requirement_id_id,
+            "victims_id": va.victims_id_id,
+            "supplier_id": va.supplier_id_id,
+            "status": va.status  
         }
         return HttpResponse(json.dumps({"victim_details": victim_details}), content_type="application/json")
     victim_data_list = list(Victims.objects.filter(number=number).values())
@@ -47,7 +54,12 @@ def login(request):
             "id": result['id'],
             "name": result['name'],
             "mobile": result['number'],
-            "has_requirement": result['requirement_status']
+            "has_requirement": result['requirement_status'],
+            "location": result_active['location'],
+            "requirement_id": va.requirement_id_id,
+            "victims_id": va.victims_id_id,
+            "supplier_id": va.supplier_id_id,
+            "status": va.status  
         }
         return HttpResponse(json.dumps({"victim_details": victim_details}), content_type="application/json")
     else:
@@ -170,7 +182,7 @@ def victim_request(request):
         type=request_type, sub_type=value).values('suppliers__id', 'suppliers__location'))
     supplier_id = -1
     metres = 500
-    present_vol_locatin = Volunteers.objects.get(id=volunteer_id).location'
+    present_vol_locatin = Volunteers.objects.get(id=volunteer_id).location
     present_vol_locatin_lat = present_vol_locatin['lat']
     present_vol_locatin_lon = present_vol_locatin['long']
     while supplier_id < 0 and metres < 10000:
@@ -204,4 +216,28 @@ def victim_request(request):
     volunteer_mob = Volunteers.objects.get(id=volunteer_id).number
     # function call
     return HttpResponse(json.dumps({"request_id": req_obj.id}))
+
+
+def location_details(request):
+    path = request.path
+    requirement_id = path.split('/')[-1]
+    try:
+        vic_data_obj = Volunteer_Supplier_Victim.objects.get(id=requirement_id)
+    except Exception as e:
+        print(e)
+        return HttpResponse(status=400)
+    location_details = {
+            "status": vic_data_obj.status,
+            "need": vic_data_obj.requirement_id.type,
+            "sub_need": vic_data_obj.requirement_id.sub_type,
+            "victim_name": vic_data_obj.victims_id.name,
+            "victim_location": vic_data_obj.victims_id.location,
+            "volunteer_name": vic_data_obj.volunteer_id.name,
+            "volunteer_location": vic_data_obj.volunteer_id.name,
+            "supplier_name": vic_data_obj.supplier_id.name,
+            "supplier_location": vic_data_obj.supplier_id.location,
+        }
+    return HttpResponse(json.dumps({"location_details": location_details}), content_type="application/json")
+    else:
+        return HttpResponse(status=400)
 
