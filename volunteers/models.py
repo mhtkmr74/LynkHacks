@@ -1,4 +1,8 @@
 from django.db import models
+from victims.models import Needs
+from victims.models import Victims
+from suppliers.models import Suppliers
+from victims.models import SafeLocations
 from location_field.models.plain import PlainLocationField
 
 # Create your models here.
@@ -7,11 +11,14 @@ from location_field.models.plain import PlainLocationField
 class Volunteers(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    number = models.IntegerField()
+    number = models.IntegerField(default=None, null=True)
     email = models.EmailField(max_length=60)
     area = models.CharField(max_length=255)
     need = models.TextField()
-    location = PlainLocationField(based_fields=['city'], zoom=7)
+    location = PlainLocationField(based_fields=['area'], zoom=7)
+    type = models.CharField(max_length=255, default=None, null=True)
+    password = models.CharField(max_length=64, default=None, null=True)
+    transportation = models.BooleanField(default=False)
 
 
     def __str__(self):
@@ -26,3 +33,10 @@ class Volunteers(models.Model):
     class Meta:
         db_table = 'Volunteers'
 
+class Volunteer_Supplier_Victim(models.Model):
+    id = models.AutoField(primary_key=True)
+    requirement_id = models.ForeignKey(Needs, on_delete=models.CASCADE, db_column='Need_id')
+    volunteer_id = models.ForeignKey(Volunteers, on_delete=models.CASCADE, db_column='Volunteer_id')
+    supplier_id = models.ForeignKey(Suppliers, on_delete=models.CASCADE, db_column='Supplier_id')
+    victims_id = models.ForeignKey(Victims, on_delete=models.CASCADE, db_column='Victim_id')
+    status = models.IntegerField(default=0)

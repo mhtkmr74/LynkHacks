@@ -7,27 +7,16 @@ from location_field.models.plain import PlainLocationField
 class Suppliers(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    number = models.IntegerField()
+    number = models.IntegerField(default=None, null=True)
     email = models.EmailField(max_length=60)
+    password = models.CharField(max_length=64, default=None, null=True)
     area = models.CharField(max_length=255)
-    need = models.TextField()
+    # donation = models.ForeignKey(Needs)
     location = PlainLocationField(based_fields=['city'], zoom=7)
-    MEDICAL = 'ME'
-    TRANSPORTATION = 'TR'
-    WORKFORCE = 'WF'
-    VOLUNTEER_CHOICES = [
-        (MEDICAL, 'Medical'),
-        (TRANSPORTATION, 'Transportation'),
-        (WORKFORCE, 'WorkForce'),
-    ]
-    volunteer_type = models.CharField(
-        max_length=2,
-        choices=VOLUNTEER_CHOICES,
-        default=WORKFORCE,
-    )
+    quantity = models.IntegerField(default=0)
 
     def is_upperclass(self):
-        return self.volunteer_type in (self.MEDICAL, self.TRANSPORTATION, self.WORKFORCE)
+        return self.donation_type in (self.MEDICAL_ASSISTANCE, self.TRANSPORTATION, self.FOOD, self.CLOTHES, self.MEDICINES)
 
     def __str__(self):
         return self.name
