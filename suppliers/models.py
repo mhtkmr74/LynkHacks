@@ -8,7 +8,7 @@ from victims.models import Needs
 class Suppliers(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    number = models.IntegerField(default=None, null=True)
+    number = models.CharField(max_length=255, default=None, null=True)
     email = models.EmailField(max_length=60)
     password = models.CharField(max_length=64, default=None, null=True)
     area = models.CharField(max_length=255)

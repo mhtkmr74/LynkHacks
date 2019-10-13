@@ -32,6 +32,7 @@ class Volunteers(models.Model):
     class Meta:
         db_table = 'Volunteers'
 
+
 class Volunteer_Supplier_Victim(models.Model):
     id = models.AutoField(primary_key=True)
     requirement_id = models.ForeignKey(Needs, on_delete=models.CASCADE, db_column='Need_id')
@@ -39,3 +40,7 @@ class Volunteer_Supplier_Victim(models.Model):
     supplier_id = models.ForeignKey(Suppliers, on_delete=models.CASCADE, db_column='Supplier_id')
     victims_id = models.ForeignKey(Victims, on_delete=models.CASCADE, db_column='Victim_id')
     status = models.IntegerField(default=0)
+
+
+    class Meta:
+        db_table = 'Volunteer_Supplier_Victim'

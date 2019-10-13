@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from volunteers.models import *
 from math import sin, cos, sqrt, atan2, radians
 from geopy.geocoders import Nominatim
+from . import service
 
 
 # Create your views here.
@@ -44,7 +45,7 @@ def login(request):
             "requirement_id": va.requirement_id_id,
             "victims_id": va.victims_id_id,
             "supplier_id": va.supplier_id_id,
-            "status": va.status  
+            "status": va.status
         }
         return HttpResponse(json.dumps({"victim_details": victim_details}), content_type="application/json")
     victim_data_list = list(Victims.objects.filter(number=number).values())
@@ -59,7 +60,7 @@ def login(request):
             "requirement_id": va.requirement_id_id,
             "victims_id": va.victims_id_id,
             "supplier_id": va.supplier_id_id,
-            "status": va.status  
+            "status": va.status
         }
         return HttpResponse(json.dumps({"victim_details": victim_details}), content_type="application/json")
     else:
@@ -108,7 +109,8 @@ def safe_place(request):
     received_json_data = json.loads(request.body)
     location = received_json_data['safe_place']
     safe_place_object = SafeLocations()
-    safe_place_object.location = location
+    safe_place_object.latitude = location['lat']
+    safe_place_object.longitude = location['long']
     safe_place_object.save()
     return HttpResponse(status=200)
 
@@ -238,6 +240,3 @@ def location_details(request):
             "supplier_location": vic_data_obj.supplier_id.location,
         }
     return HttpResponse(json.dumps({"location_details": location_details}), content_type="application/json")
-    else:
-        return HttpResponse(status=400)
-
