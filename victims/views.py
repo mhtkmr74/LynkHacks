@@ -122,6 +122,7 @@ def requirement_status(request):
     vic_data_obj.delivery_status = update_request_data['status']
     vic_data_obj.requirement = need_obj
     vic_data_obj.save()
+    return HttpResponse(status=200)
 
 
 def get_safe_place(request):
