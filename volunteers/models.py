@@ -11,10 +11,9 @@ from location_field.models.plain import PlainLocationField
 class Volunteers(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    number = models.IntegerField(default=None, null=True)
+    number = models.CharField(default=None, null=True, max_length=255)
     email = models.EmailField(max_length=60)
     area = models.CharField(max_length=255)
-    need = models.ForeignKey(Needs, on_delete=models.CASCADE, db_column='Need_id')
     location = PlainLocationField(based_fields=['area'], zoom=7)
     type = models.CharField(max_length=255, default=None, null=True)
     password = models.CharField(max_length=64, default=None, null=True)

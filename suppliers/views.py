@@ -50,11 +50,11 @@ def login(request):
         return HttpResponse(status=401)
 
 
-
 def insert_goods(request):
+    print("1")
     received_json_data = json.loads(request.body)
     path = request.path
-    update_id = path.split('/')[1]
+    update_id = path.split('/')[-2]
     goods = received_json_data['goods_type']
     res = Needs.objects.get(sub_type=goods)
     quantity = received_json_data['quantity']
@@ -67,8 +67,3 @@ def insert_goods(request):
     sup_upd.donation = res
     sup_upd.save()
     return HttpResponse(status=200)
-
-
-
-
-

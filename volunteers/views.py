@@ -23,33 +23,29 @@ def login(request):
     received_json_data = json.loads(request.body)
     number = received_json_data['mobile_number']
     password = received_json_data['password']
-    volunt_data_list_active = list(Volunteers.objects.filter(
-        number=number, password=password).values())
-    va = Volunteer_Supplier_Victim.objects.get(id=1)
-    if len(volunt_data_list_active) > 0:
-        result_active = volunt_data_list_active[0]
-        volunteer_details = {
-            "id": result_active['id'],
-            "name": result_active['name'],
-            "number": result_active['number'],
-            "email": result_active['email'],
-            "type": result_active['type'],
-            "transportation": result_active['transportation'],
-            "location": result_active['location'],
-            "requirement_id": va.requirement_id_id,
-            "victims_id": va.victims_id_id,
-            "supplier_id": va.supplier_id_id,
-            "status": va.status  
-        }
-        return HttpResponse(json.dumps({"volunteer_details": volunteer_details}), content_type="application/json")
-    return HttpResponse(status=401)
+    print("1")
+    volunt_data_list_active = Volunteers.objects.get(
+        number=number, password=password)
+    print("2")
+    va = Volunteer_Supplier_Victim.objects.get(volunteer_id=volunt_data_list_active.id)
+    print("3")
+    volunteer_details = {
+        "id": volunt_data_list_active.id,
+        "name": volunt_data_list_active.name,
+        "location": volunt_data_list_active.location,
+        "status": va.status
+
+    }
+    return HttpResponse(json.dumps({"volunteer_details": volunteer_details}), content_type="application/json")
 
 
 def update_volunteer(request):
     received_json_data = json.loads(request.body)
+    print("1", received_json_data)
     path = request.path
-    volunteer_id = path.split('/')[1]
-    vol_obj = Volunteers()
+    volunteer_id = path.split('/')[-2]
+    vol_obj = Volunteers.objects.get(id=volunteer_id)
     vol_obj.transportation = received_json_data['has_vehicle']
     vol_obj.location = received_json_data['location']
+    vol_obj.save()
     return HttpResponse(status=200)

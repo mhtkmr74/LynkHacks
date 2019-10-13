@@ -1,7 +1,7 @@
 from django.shortcuts import render
 import json
 from .models import Victims, Requirements, Needs, SafeLocations
-from volunteers.models import Volunteers
+from volunteers.models import Volunteers, Volunteer_Supplier_Victim
 from suppliers.models import Suppliers
 from django.http import HttpResponse
 from volunteers.models import *
@@ -116,7 +116,7 @@ def safe_place(request):
 
 
 def all_requests(request):
-    if not request.type == 'GET':
+    if not request.method == 'GET':
         victim_request(request)
     mappng = {
             "1": "Goods Foods",
@@ -126,7 +126,8 @@ def all_requests(request):
             "5": "Relocation "
         }
     path = request.path
-    victim_id = path.split('/')[1]
+    victim_id = path.split('/')[-2]
+    print("hi", victim_id)
     final_result = list()
     all_active_requirements = list(Requirements.objects.filter(
         victim_id=victim_id, delivery_status=5).values())
