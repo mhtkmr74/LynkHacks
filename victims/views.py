@@ -7,7 +7,6 @@ from django.http import HttpResponse
 from volunteers.models import *
 from math import sin, cos, sqrt, atan2, radians
 from geopy.geocoders import Nominatim
-from . import service
 
 
 # Create your views here.
@@ -66,6 +65,47 @@ def login(request):
     else:
         return HttpResponse(status=400)
 
+def sendMessages(victim_location, victim_mob, supplier_location, supplier_mob, volunteer_location, volunteer_mob):
+    url = "https://www.fast2sms.com/dev/bulk"
+    numbers = "{}".format(volunteer_mob)
+    payload = "sender_id=FSTSMS&message={}&language=english&route=p&numbers={}".format(
+        "Hi your supplier location is {} and mobile_no is {} and your victim_location is{} and his mobile no is{}".format(supplier_location, supplier_mob, victim_location, victim_mob), numbers)
+    headers = {
+        'authorization': "EGoanmHNs9qkv7jrTPRUZ8luVtfiYKI3OAeCJyxM6whBDXQ4WFGnrWH71ChiKUfS34vtOemFNajsMJbL",
+        'Content-Type': "application/x-www-form-urlencoded",
+        'Cache-Control': "no-cache",
+    }
+
+    response = requests.request("POST", url, data=payload, headers=headers)
+
+    print(response.text)
+
+    numbers = "{}".format(supplier_mob)
+    payload = "sender_id=FSTSMS&message={}&language=english&route=p&numbers={}".format(
+        "Hi the volunteer location is {} and mobile_no is {} and the victim_location is{} and his mobile no is{}".format(volunteer_location, volunteer_mob, victim_location, victim_mob), numbers)
+    headers = {
+        'authorization': "EGoanmHNs9qkv7jrTPRUZ8luVtfiYKI3OAeCJyxM6whBDXQ4WFGnrWH71ChiKUfS34vtOemFNajsMJbL",
+        'Content-Type': "application/x-www-form-urlencoded",
+        'Cache-Control': "no-cache",
+    }
+
+    response = requests.request("POST", url, data=payload, headers=headers)
+
+    print(response.text)
+
+    numbers = "{}".format(victim_mod)
+    payload = "sender_id=FSTSMS&message={}&language=english&route=p&numbers={}".format(
+        "Help is on the way!! The Volunteer location is {} and mobile_no is {} and the Supplier Location is{} and his mobile no is{}".format(volunteer_location, volunteer_mob, supplier_location, supplier_mob), numbers)
+    headers = {
+        'authorization': "EGoanmHNs9qkv7jrTPRUZ8luVtfiYKI3OAeCJyxM6whBDXQ4WFGnrWH71ChiKUfS34vtOemFNajsMJbL",
+        'Content-Type': "application/x-www-form-urlencoded",
+        'Cache-Control': "no-cache",
+    }
+
+    response = requests.request("POST", url, data=payload, headers=headers)
+
+    print(response.text)
+
 
 def requirement_status(request):
     path = request.path
@@ -114,6 +154,23 @@ def safe_place(request):
     safe_place_object.save()
     return HttpResponse(status=200)
 
+def relocation(request):
+    path = request.path
+    victim_id = path.split('/')[-1]
+    received_json_data = json.loads(request.body)
+    request_type = received_json_data['request_type']
+    safe_places = received_json_data['safe_places']
+    transportation = received_json_data['transportation']
+    vic_data_obj = Volunteer_Supplier_Victim.objects.get(id=victim_id)
+    if (transportation):
+    	transportation_details = {
+    		"requirement_id": vic_data_obj.requirement_id_id,
+    		"status": vic_data_obj.status
+    	}
+    	return HttpResponse(json.dumps({"relocation_details": relocation_details}), content_type="application/json")
+    else:
+    	return HttpResponse(status=400)
+
 
 def all_requests(request):
     if not request.method == 'GET':
@@ -150,6 +207,8 @@ def victim_request(request):
     req_obj.victim_id = Victims.objects.get(id=victim_id)
     req_obj.quantity = quantity
     req_obj.delivery_status = 1
+    if (value == "Emergency"):
+    	req_obj.delivery_status = 2
     req_obj.save()
     metres = 500
     volunteer_id = -1
@@ -218,6 +277,7 @@ def victim_request(request):
     volunteer_location = present_vol_locatin
     volunteer_mob = Volunteers.objects.get(id=volunteer_id).number
     # function call
+    sendMessages(victim_location, victim_mob, supplier_location, supplier_mob, volunteer_location, volunteer_mob)
     return HttpResponse(json.dumps({"request_id": req_obj.id}))
 
 
@@ -241,3 +301,4 @@ def location_details(request):
             "supplier_location": vic_data_obj.supplier_id.location,
         }
     return HttpResponse(json.dumps({"location_details": location_details}), content_type="application/json")
+
